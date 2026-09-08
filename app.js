@@ -6,7 +6,7 @@
 
 // --- 1. الإعدادات العامة (Configuration) ---
 // استبدل هذا الرابط برابط Web App الخاص بك بعد نشر Code.gs
-const SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbztfhiQuZ_OtERgFcd8Encm7BvMxtZ00_bw17ZaNIwrC5n1xcxAPat80aRT0gs5sJcg/exec';
 
 // مفاتيح التخزين المحلي
 const STORAGE_KEYS = {

@@ -3,251 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1d4ed8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
     <title>Aurel Tronics - Sales Pro</title>
+
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
-        .loader { border-top-color: #3b82f6; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .hidden { display: none; }
+        /* CSS المهندس الخبير: تحسينات الواجهة للهواتف */
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+            background-color: #f8fafc;
+        }
+
+        /* تأثير الزجاج العصري */
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* مؤشر التحميل العلوي */
+        .top-loader {
+            height: 3px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #e2e8f0;
+            display: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .top-loader::after {
+            content: "";
+            position: absolute;
+            left: -200%;
+            height: 100%;
+            width: 200%;
+            background: #2563eb;
+            animation: slide-loading 1.5s infinite linear;
+        }
+        @keyframes slide-loading {
+            from { left: -200%; }
+            to { left: 100%; }
+        }
+
+        /* إخفاء شريط التمرير */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* تخصيص الـ Chips (الاختيارات المتعددة) */
+        .chip-input:checked + .chip-label {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .chip-label {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* أنيميشن الدخول للنوافذ */
+        .modal-slide-up {
+            animation: slide-up 0.4s ease-out forwards;
+        }
+        @keyframes slide-up {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* حالة الأوفلاين */
+        body.is-offline .offline-banner { display: flex; }
+        .offline-banner { display: none; }
     </style>
 </head>
-<body class="antialiased text-gray-800">
+<body class="antialiased text-slate-900 overflow-x-hidden">
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center hidden">
-        <div class="bg-white p-5 rounded-xl flex flex-col items-center">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-            <p class="font-semibold text-blue-600">جاري المعالجة...</p>
-        </div>
+    <!-- Loading Bar -->
+    <div id="loaderBar" class="top-loader"></div>
+
+    <!-- Offline Notification Banner -->
+    <div class="offline-banner fixed top-0 w-full bg-red-600 text-white text-[11px] py-1.5 justify-center items-center z-[10000] font-bold shadow-lg">
+        <i data-lucide="wifi-off" class="w-3 h-3 ml-2"></i>
+        أنت تعمل الآن في الوضع غير المتصل - سيتم حفظ البيانات ومزامنتها لاحقاً
     </div>
 
-    <!-- Auth Section -->
-    <section id="authSection" class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-blue-700">أورل ترونكس</h1>
-                <p class="text-gray-500 mt-2">نظام مناديب المبيعات الميدانيين</p>
+    <!-- [1] SECTION: AUTHENTICATION -->
+    <section id="authSection" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-white to-slate-50">
+        <div class="w-full max-w-md bg-white rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-10 border border-slate-100">
+            <div class="text-center mb-10">
+                <div class="w-24 h-24 bg-blue-600 rounded-[2rem] mx-auto mb-6 flex items-center justify-center shadow-2xl shadow-blue-200 rotate-6 hover:rotate-0 transition-transform duration-500">
+                    <i data-lucide="zap" class="w-12 h-12 text-white -rotate-6"></i>
+                </div>
+                <h1 class="text-4xl font-black text-slate-800 tracking-tight">أورل ترونكس</h1>
+                <p class="text-slate-400 mt-3 font-semibold text-sm italic">Sales Pro Dashboard v2.0</p>
             </div>
 
-            <!-- Login Form -->
-            <div id="loginForm">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">اسم المستخدم</label>
-                        <input type="text" id="loginUsername" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">كلمة المرور</label>
-                        <input type="password" id="loginPassword" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200">دخول</button>
+            <!-- Login Form Container -->
+            <div id="loginForm" class="space-y-5">
+                <div class="relative">
+                    <i data-lucide="user" class="absolute right-4 top-4 text-slate-300 w-5 h-5"></i>
+                    <input type="text" id="loginUsername" placeholder="اسم المستخدم" class="w-full p-4 pr-12 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-blue-500 transition-all font-bold text-slate-700">
                 </div>
-                <div class="mt-6 flex flex-col gap-3 text-center text-sm">
-                    <button onclick="toggleAuthForms('register')" class="text-blue-600 font-semibold underline">إنشاء مستخدم جديد</button>
-                    <button onclick="showForgotPassword()" class="text-gray-500">نسيت كلمة المرور؟</button>
+                <div class="relative">
+                    <i data-lucide="lock" class="absolute right-4 top-4 text-slate-300 w-5 h-5"></i>
+                    <input type="password" id="loginPassword" placeholder="كلمة المرور" class="w-full p-4 pr-12 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-blue-500 transition-all font-bold text-slate-700">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <i data-lucide="log-in" class="w-5 h-5"></i>
+                    تسجيل الدخول
+                </button>
+                <div class="flex flex-col gap-4 items-center pt-4">
+                    <button onclick="toggleAuthForms('register')" class="text-blue-600 text-sm font-black hover:underline underline-offset-4">إنشاء حساب مندوب جديد</button>
+                    <button onclick="showForgotPassword()" class="text-slate-400 text-xs font-bold">نسيت كلمة المرور؟</button>
                 </div>
             </div>
 
-            <!-- Register Form -->
-            <div id="registerForm" class="hidden">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">الدولة</label>
-                        <select id="regCountry" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="مصر">مصر</option>
-                            <option value="السعودية">السعودية</option>
-                            <option value="الإمارات">الإمارات</option>
-                            <option value="الأردن">الأردن</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">اسم المستخدم الجديد</label>
-                        <input type="text" id="regUsername" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">كلمة المرور</label>
-                        <input type="password" id="regPassword" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <button onclick="handleRegister()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition">تسجيل الحساب</button>
-                    <button onclick="toggleAuthForms('login')" class="w-full text-gray-500 text-sm">العودة لتسجيل الدخول</button>
+            <!-- Register Form Container (Hidden by default) -->
+            <div id="registerForm" class="hidden space-y-5">
+                <div class="relative">
+                    <i data-lucide="globe" class="absolute right-4 top-4 text-slate-300 w-5 h-5 z-10"></i>
+                    <select id="regCountry" class="w-full p-4 pr-12 bg-slate-50 border-2 border-transparent rounded-2xl outline-none font-bold text-slate-700 appearance-none relative">
+                        <option value="مصر">مصر (+20)</option>
+                        <option value="السعودية">السعودية (+966)</option>
+                        <option value="الإمارات">الإمارات (+971)</option>
+                        <option value="الأردن">الأردن (+962)</option>
+                    </select>
                 </div>
+                <input type="text" id="regUsername" placeholder="اسم المستخدم الجديد" class="w-full p-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none font-bold">
+                <input type="password" id="regPassword" placeholder="كلمة مرور قوية" class="w-full p-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none font-bold">
+                <button onclick="handleRegister()" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-2xl transition-all active:scale-95">تأكيد التسجيل</button>
+                <button onclick="toggleAuthForms('login')" class="w-full text-slate-400 text-sm font-bold text-center">العودة للدخول</button>
             </div>
         </div>
     </section>
 
-    <!-- Main Dashboard -->
-    <section id="dashboardSection" class="hidden min-h-screen pb-20">
-        <!-- Header -->
-        <header class="bg-blue-700 text-white p-6 shadow-lg rounded-b-[2rem]">
-            <div class="flex justify-between items-center mb-4">
+    <!-- [2] SECTION: MAIN DASHBOARD -->
+    <section id="dashboardSection" class="hidden min-h-screen pb-32">
+        <!-- Header & Stats Card -->
+        <header class="bg-blue-700 text-white pt-14 pb-28 px-6 rounded-b-[4rem] shadow-2xl relative overflow-hidden">
+            <!-- Decorative circle -->
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-600 rounded-full opacity-50 blur-3xl"></div>
+            
+            <div class="relative z-10 flex justify-between items-center mb-10">
                 <div>
-                    <h2 class="text-xl font-bold" id="userDisplayName">مرحباً مندوبنا</h2>
-                    <p class="text-blue-100 text-sm" id="userRegion">مصر</p>
+                    <h2 class="text-2xl font-black" id="userDisplayName">أهلاً بك..</h2>
+                    <p class="text-blue-200 text-[10px] font-black uppercase tracking-widest mt-1" id="userRegionInfo">نطاق العمل: ...</p>
                 </div>
-                <div class="bg-white/20 p-2 rounded-full">
-                    <i data-lucide="user" class="w-6 h-6"></i>
-                </div>
+                <button onclick="handleLogout()" class="p-4 bg-white/10 hover:bg-white/20 rounded-3xl backdrop-blur-xl transition-all border border-white/20">
+                    <i data-lucide="power" class="w-6 h-6 text-white"></i>
+                </button>
             </div>
             
-            <!-- Monthly Stats Card -->
-            <div onclick="showMonthlyStats()" class="bg-white text-blue-900 p-4 rounded-2xl shadow-sm cursor-pointer active:scale-95 transition">
+            <!-- Monthly Summary Card -->
+            <div onclick="showMonthlyStats()" class="relative z-10 glass-morphism p-8 rounded-[3rem] shadow-2xl cursor-pointer active:scale-95 transition-all group">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-semibold opacity-70">إنجازك هذا الشهر</p>
-                        <h3 class="text-2xl font-black mt-1" id="monthlyCount">0 زيارة</h3>
+                        <p class="text-slate-500 text-[11px] font-black uppercase tracking-tighter mb-1">إنجازك خلال الشهر الحالي</p>
+                        <div class="flex items-baseline gap-2">
+                            <h3 class="text-5xl font-black text-blue-700" id="monthlyCountLabel">0</h3>
+                            <span class="text-slate-400 text-sm font-bold">زيارة مكتملة</span>
+                        </div>
                     </div>
-                    <i data-lucide="chevron-left" class="w-6 h-6 opacity-50"></i>
+                    <div class="w-16 h-16 bg-blue-600 rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-200 group-hover:rotate-12 transition-transform">
+                        <i data-lucide="bar-chart-big" class="w-8 h-8 text-white"></i>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <main class="p-4 space-y-6">
-            <!-- Today's Checklist -->
+        <!-- Main Dashboard Content -->
+        <main class="px-6 -mt-14 relative z-20 space-y-10">
+            <!-- Quick Floating Actions -->
+            <div class="flex gap-4">
+                <button onclick="openAllVisitsModal()" class="flex-1 bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 flex items-center justify-center gap-3 font-black text-slate-700 active:scale-95 transition-all border border-slate-50">
+                    <i data-lucide="database" class="w-6 h-6 text-blue-600"></i>
+                    سجل المبيعات
+                </button>
+                <button onclick="openVisitModal()" class="w-24 h-24 bg-blue-600 rounded-[2.5rem] shadow-[0_15px_30px_rgba(37,99,235,0.4)] flex items-center justify-center text-white active:scale-90 active:rotate-45 transition-all duration-300">
+                    <i data-lucide="plus" class="w-12 h-12"></i>
+                </button>
+            </div>
+
+            <!-- Tasks: Today Section -->
             <section>
-                <h4 class="flex items-center gap-2 font-bold mb-4 px-2">
-                    <i data-lucide="calendar-check" class="w-5 h-5 text-blue-600"></i>
-                    مهام اليوم (Checklist)
-                </h4>
-                <div id="todayVisitsList" class="space-y-3">
-                    <!-- Dynamic Items -->
+                <div class="flex justify-between items-center mb-6 px-3">
+                    <h4 class="font-black text-slate-800 text-lg flex items-center gap-3">
+                        <span class="flex h-3 w-3 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-600"></span>
+                        </span>
+                        مهام اليوم المجدولة
+                    </h4>
+                    <span id="todayDateLabel" class="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-full shadow-inner tracking-tighter">...</span>
+                </div>
+                <div id="todayVisitsList" class="space-y-4">
+                    <!-- Dynamic: Today cards go here -->
                 </div>
             </section>
 
-            <!-- Quick Action: Add Visit -->
-            <button onclick="openVisitModal()" class="w-full bg-blue-600 text-white flex items-center justify-center gap-2 p-4 rounded-2xl shadow-lg font-bold sticky bottom-20 z-40">
-                <i data-lucide="plus-circle" class="w-6 h-6"></i>
-                تسجيل زيارة عيادة جديدة
-            </button>
-
-            <!-- Upcoming Visits -->
+            <!-- Tasks: Upcoming Section -->
             <section>
-                <h4 class="flex items-center gap-2 font-bold mb-4 px-2 text-gray-600">
-                    <i data-lucide="clock" class="w-5 h-5"></i>
-                    المواعيد القادمة
-                </h4>
-                <div id="upcomingVisitsList" class="space-y-4 pb-10">
-                    <!-- Dynamic Cards -->
+                <div class="flex items-center gap-3 mb-6 px-3">
+                    <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                    <h4 class="font-black text-slate-800 text-lg">المواعيد القادمة</h4>
+                </div>
+                <div id="upcomingVisitsList" class="space-y-4 pb-12">
+                    <!-- Dynamic: Upcoming cards go here -->
                 </div>
             </section>
         </main>
-
-        <!-- Bottom Menu -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50">
-            <button onclick="handleLogout()" class="flex flex-col items-center text-red-500">
-                <i data-lucide="log-out" class="w-6 h-6"></i>
-                <span class="text-[10px]">خروج</span>
-            </button>
-        </nav>
     </section>
 
-    <!-- Modals -->
-    <!-- New Visit Modal -->
-    <div id="visitModal" class="fixed inset-0 bg-black/60 z-[60] flex items-end sm:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-2xl p-6 h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">نموذج زيارة جديدة</h3>
-                <button onclick="closeVisitModal()" class="p-2 bg-gray-100 rounded-full"><i data-lucide="x"></i></button>
+    <!-- [MODAL 1]: NEW VISIT FORM -->
+    <div id="visitModal" class="fixed inset-0 bg-slate-900/80 z-[100] hidden backdrop-blur-md flex items-end sm:items-center">
+        <div class="bg-white w-full h-[95vh] sm:h-auto sm:max-w-2xl sm:mx-auto rounded-t-[4rem] sm:rounded-[3rem] p-8 overflow-y-auto no-scrollbar modal-slide-up">
+            <div class="flex justify-between items-center mb-10 sticky top-0 bg-white/90 backdrop-blur-md py-4 z-10">
+                <h3 class="text-3xl font-black text-slate-800 tracking-tight">إضافة سجل زيارة</h3>
+                <button onclick="closeVisitModal()" class="p-4 bg-slate-100 rounded-2xl hover:bg-slate-200 transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
             </div>
             
-            <form id="visitForm" class="space-y-5 pb-10 text-right">
-                <div>
-                    <label class="block text-sm font-semibold mb-2">اسم الدكتور *</label>
-                    <input type="text" id="drName" required class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-2">اسم العيادة/المركز *</label>
-                    <input type="text" id="clinicName" required class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-semibold mb-2">تخصص العيادة</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg cursor-pointer"><input type="checkbox" name="specialty" value="تركيبات"> تركيبات</label>
-                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg cursor-pointer"><input type="checkbox" name="specialty" value="زراعة"> زراعة</label>
-                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg cursor-pointer"><input type="checkbox" name="specialty" value="تقويم"> تقويم</label>
-                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg cursor-pointer"><input type="checkbox" name="specialty" value="أسنان عام"> أسنان عام</label>
+            <form id="visitForm" class="space-y-8 pb-20">
+                <!-- Dr & Clinic Info -->
+                <div class="grid grid-cols-1 gap-5">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-slate-400 uppercase mr-1 tracking-widest">بيانات الطبيب والعيادة</label>
+                        <input type="text" id="drName" placeholder="اسم الدكتور بالكامل *" required class="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[1.5rem] outline-none font-bold text-lg">
+                        <input type="text" id="clinicName" placeholder="اسم المركز أو العيادة *" required class="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[1.5rem] outline-none font-bold text-lg">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">رقم الهاتف 1 *</label>
-                        <input type="tel" id="phone1" required class="w-full p-3 bg-gray-50 border rounded-xl">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">رقم الهاتف 2</label>
-                        <input type="tel" id="phone2" class="w-full p-3 bg-gray-50 border rounded-xl">
+                <!-- Specialty Selection -->
+                <div class="space-y-3">
+                    <label class="text-[11px] font-black text-slate-400 uppercase mr-1 tracking-widest">تخصص العيادة</label>
+                    <div class="flex flex-wrap gap-2">
+                        <label class="relative cursor-pointer">
+                            <input type="checkbox" name="specialty" value="تركيبات" class="hidden chip-input">
+                            <span class="chip-label block px-6 py-3 rounded-2xl bg-slate-100 text-slate-600 font-black text-xs border-2 border-transparent">تركيبات</span>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="checkbox" name="specialty" value="زراعة" class="hidden chip-input">
+                            <span class="chip-label block px-6 py-3 rounded-2xl bg-slate-100 text-slate-600 font-black text-xs border-2 border-transparent">زراعة</span>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="checkbox" name="specialty" value="تقويم" class="hidden chip-input">
+                            <span class="chip-label block px-6 py-3 rounded-2xl bg-slate-100 text-slate-600 font-black text-xs border-2 border-transparent">تقويم</span>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="checkbox" name="specialty" value="أسنان عام" class="hidden chip-input">
+                            <span class="chip-label block px-6 py-3 rounded-2xl bg-slate-100 text-slate-600 font-black text-xs border-2 border-transparent">أسنان عام</span>
+                        </label>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">العنوان</label>
-                    <input type="text" id="address" class="w-full p-3 bg-gray-50 border rounded-xl">
+                <!-- Phone Numbers -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-slate-400 uppercase mr-1 tracking-widest text-right block">أرقام التواصل</label>
+                        <input type="tel" id="phone1" placeholder="رقم الموبايل الأساسي *" required class="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[1.5rem] outline-none font-black">
+                        <input type="tel" id="phone2" placeholder="رقم إضافي (اختياري)" class="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[1.5rem] outline-none font-black">
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">الموقع الجغرافي (GPS)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="gpsLink" placeholder="رابط الخريطة" class="flex-1 p-3 bg-gray-50 border rounded-xl text-xs">
-                        <button type="button" onclick="getCurrentLocation()" class="bg-blue-100 text-blue-700 px-4 rounded-xl flex items-center gap-1 text-xs font-bold">
-                            <i data-lucide="map-pin" class="w-4 h-4"></i> جلب
+                <!-- GPS Location -->
+                <div class="space-y-2">
+                    <label class="text-[11px] font-black text-slate-400 uppercase mr-1 tracking-widest text-right block">الموقع الجغرافي</label>
+                    <div class="flex gap-3">
+                        <input type="text" id="gpsLink" placeholder="إحداثيات الموقع / رابط الخريطة" class="flex-1 p-5 bg-slate-50 border-2 border-slate-50 rounded-[1.5rem] outline-none font-bold text-xs overflow-hidden text-ellipsis">
+                        <button type="button" onclick="getCurrentLocation()" class="w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">
+                            <i data-lucide="map-pin" class="w-6 h-6"></i>
                         </button>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">المواد الدعائية</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg"><input type="checkbox" name="promo" value="بروشور"> بروشور</label>
-                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg"><input type="checkbox" name="promo" value="عينة مجانية"> عينة مجانية</label>
+                <!-- Visit Status & Next Appointment -->
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="space-y-3">
+                        <label class="text-[11px] font-black text-slate-400 uppercase mr-1 tracking-widest text-right block">حالة الاهتمام والزيارة</label>
+                        <select id="visitStatus" onchange="toggleNextVisitField()" class="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[1.5rem] outline-none font-black text-slate-800 appearance-none shadow-sm">
+                            <option value="مهتم بالشراء">مهتم بالشراء</option>
+                            <option value="يطلب سعر">يطلب سعر</option>
+                            <option value="يحتاج متابعة">يحتاج متابعة</option>
+                            <option value="غير مهتم">غير مهتم</option>
+                            <option value="تم تحديد موعد لمقابلة الطبيب">تم تحديد موعد لمقابلة الطبيب</option>
+                        </select>
+                    </div>
+
+                    <div id="nextVisitWrapper" class="hidden space-y-3 bg-blue-50/50 p-6 rounded-[2rem] border-2 border-dashed border-blue-200">
+                        <label class="text-sm font-black text-blue-700 flex items-center gap-2">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            تاريخ ووقت الموعد القادم
+                        </label>
+                        <input type="datetime-local" id="nextVisitDate" class="w-full p-4 bg-white border-2 border-blue-100 rounded-2xl outline-none font-black text-blue-700">
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">حالة الزيارة</label>
-                    <select id="visitStatus" onchange="toggleNextVisitDate()" class="w-full p-3 bg-gray-50 border rounded-xl">
-                        <option value="مهتم بالشراء">مهتم بالشراء</option>
-                        <option value="يطلب سعر">يطلب سعر</option>
-                        <option value="يحتاج متابعة">يحتاج متابعة</option>
-                        <option value="غير مهتم">غير مهتم</option>
-                        <option value="تم تحديد موعد لمقابلة الطبيب">تم تحديد موعد لمقابلة الطبيب</option>
-                    </select>
+                <!-- Notes -->
+                <div class="space-y-3">
+                    <label class="text-[11px] font-black text-slate-400 uppercase mr-1 tracking-widest text-right block">الملاحظات، الاحتياجات، والمواد الدعائية</label>
+                    <textarea id="notes" rows="5" placeholder="أدخل هنا ما تم تسليمه من عينات، هدايا، أو طلبات الطبيب..." class="w-full p-6 bg-slate-50 border-2 border-slate-50 rounded-[2rem] outline-none font-bold text-slate-600 leading-relaxed"></textarea>
                 </div>
 
-                <div id="nextVisitContainer" class="hidden">
-                    <label class="block text-sm font-semibold mb-2">موعد الزيارة القادمة</label>
-                    <input type="datetime-local" id="nextVisitDate" class="w-full p-3 bg-gray-50 border rounded-xl">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold mb-2">ملاحظات واحتياجات</label>
-                    <textarea id="notes" rows="3" class="w-full p-3 bg-gray-50 border rounded-xl"></textarea>
-                </div>
-
-                <div class="flex gap-3">
-                    <button type="button" onclick="submitVisit()" class="flex-1 bg-blue-600 text-white font-bold py-4 rounded-xl">حفظ الزيارة</button>
-                    <button type="button" onclick="closeVisitModal()" class="flex-1 bg-gray-200 font-bold py-4 rounded-xl">إلغاء</button>
-                </div>
+                <!-- Submit Button -->
+                <button type="button" onclick="handleVisitSubmit()" class="w-full bg-blue-600 text-white font-black py-6 rounded-[2.5rem] shadow-2xl shadow-blue-100 transition-all active:scale-95 flex items-center justify-center gap-3 text-lg">
+                    <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                    حفظ وإرسال السجل الآن
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- Stats Modal -->
-    <div id="statsModal" class="fixed inset-0 bg-black/60 z-[60] flex items-end sm:items-center justify-center hidden">
-        <div class="bg-white w-full max-w-lg rounded-t-2xl p-6 max-h-[80vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">تفاصيل زيارات الشهر</h3>
-                <button onclick="closeStatsModal()"><i data-lucide="x"></i></button>
+    <!-- [MODAL 2]: SEARCH & ALL RECORDS -->
+    <div id="allVisitsModal" class="fixed inset-0 bg-slate-900/80 z-[110] hidden backdrop-blur-md flex items-end sm:items-center">
+        <div class="bg-white w-full h-[95vh] rounded-t-[4rem] p-8 flex flex-col modal-slide-up sm:h-[90vh] sm:mt-[10vh] sm:max-w-4xl sm:mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-3xl font-black text-slate-800">الأرشيف الكامل</h3>
+                <button onclick="closeAllVisitsModal()" class="p-4 bg-slate-100 rounded-3xl"><i data-lucide="x"></i></button>
             </div>
-            <div id="statsList" class="space-y-3">
-                <!-- Monthly details -->
+            
+            <!-- Search Bar -->
+            <div class="relative mb-8">
+                <i data-lucide="search" class="absolute right-6 top-5 text-slate-400 w-6 h-6"></i>
+                <input type="text" id="visitSearchInput" oninput="filterVisits()" placeholder="ابحث باسم الطبيب، المركز، أو رقم الهاتف..." class="w-full p-5 pr-16 bg-slate-100 rounded-[2rem] outline-none font-bold border-2 border-transparent focus:border-blue-500 focus:bg-white transition-all shadow-inner">
+            </div>
+
+            <!-- List Container -->
+            <div id="allVisitsListContainer" class="flex-1 overflow-y-auto space-y-4 pb-12 no-scrollbar">
+                <!-- Search dynamic results -->
             </div>
         </div>
     </div>
 
+    <!-- [MODAL 3]: MONTHLY STATS DETAILS -->
+    <div id="statsModal" class="fixed inset-0 bg-slate-900/90 z-[120] hidden backdrop-blur-md flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-lg rounded-[3.5rem] p-10 max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
+                        <i data-lucide="check-circle" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-800 tracking-tighter">زيارات الشهر الحالي</h3>
+                </div>
+                <button onclick="closeStatsModal()" class="p-3 bg-slate-50 rounded-2xl hover:bg-slate-100"><i data-lucide="x"></i></button>
+            </div>
+            <div id="monthlyStatsList" class="flex-1 overflow-y-auto space-y-4 pr-1 no-scrollbar">
+                <!-- Monthly List results -->
+            </div>
+            <button onclick="closeStatsModal()" class="mt-8 w-full bg-slate-900 text-white font-black py-4 rounded-3xl">إغلاق النافذة</button>
+        </div>
+    </div>
+
+    <!-- Scripts Registration -->
     <script src="app.js"></script>
+    <script>
+        // تهيئة أيقونات Lucide
+        lucide.createIcons();
+    </script>
 </body>
 </html>

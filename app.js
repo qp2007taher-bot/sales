@@ -1,5 +1,5 @@
 // Configuration - استبدل هذا الرابط برابط الـ Web App بعد نشر Code.gs
-const SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMb-sCqUM03SaQGU_7VWFgrQsERtU0UfMG1Qed2EEhjzKIfbkQQytaLzxhBI1G2Q2a/exec';
 
 let currentUser = JSON.parse(localStorage.getItem('aurelUser')) || null;
 let allVisits = [];
